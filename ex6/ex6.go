@@ -8,8 +8,8 @@ import (
 )
 
 func main() {
-	// example1()
-	// example2()
+	example1()
+	example2()
 	example3()
 }
 
@@ -79,28 +79,33 @@ func example2() {
 func example3() {
 	ch := make(chan string)
 	exit := make(chan bool)
-	go func(ch chan string, exit chan bool) {
+	wg := &sync.WaitGroup{}
+	wg.Add(2)
+	go func(ch chan string, exit chan bool, wg *sync.WaitGroup) {
 		for {
 			select {
 			case <-exit:
 				close(ch)
+				wg.Done()
 				return
 			default:
 				ch <- "Hello!"
 				time.Sleep(time.Second)
 			}
 		}
-	}(ch, exit)
-	go func(ch chan string) {
+	}(ch, exit, wg)
+	go func(ch chan string, wg *sync.WaitGroup) {
 		for {
 			if m, open := <-ch; open {
 				fmt.Println(m)
 			} else {
 				fmt.Println("Stop by closing channel")
+				wg.Done()
 				return
 			}
 		}
-	}(ch)
-	time.Sleep(5 * time.Second)
+	}(ch, wg)
+	time.Sleep(3 * time.Second)
 	exit <- true
+	wg.Wait()
 }
