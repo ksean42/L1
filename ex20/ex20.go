@@ -25,7 +25,7 @@ func reverse(str string) string {
 
 func reverse1(str string) string {
 	newStr := new(strings.Builder)
-	newStr.Grow(len(str))
+	newStr.Grow(len(str) + 1)
 	slice := strings.Fields(str)
 	for i := len(slice) - 1; i >= 0; i-- {
 		newStr.WriteString(slice[i] + " ")
